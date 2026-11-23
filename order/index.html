@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>旗標訂餐系統</title>
+  <style>
+    :root {
+      --primary: #e8590c;
+      --primary-dark: #c94a06;
+      --bg: #f7f7f5;
+      --card: #ffffff;
+      --text: #222;
+      --muted: #777;
+      --border: #e2e2e0;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 16px 140px;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    /* 菜單網址輸入區 */
+    .url-bar {
+      display: flex;
+      gap: 8px;
+      background: var(--card);
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="number"],
+    select {
+      font: inherit;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      width: 100%;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(232, 89, 12, 0.15);
+    }
+
+    button {
+      font: inherit;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    button:hover:not(:disabled) { background: var(--primary-dark); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* loading */
+    .loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 48px 0;
+      color: var(--muted);
+    }
+
+    .loading.show { display: flex; }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .message {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .message.show { display: block; }
+    .message.error { background: #fdecea; color: #b42318; }
+    .message.success { background: #e9f7ef; color: #1e7b45; }
+
+    /* 品項卡片 */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .item-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .item-price {
+      color: var(--primary);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .row .field { flex: 1; }
+    .row .field.qty { flex: 0 0 90px; }
+
+    .card-footer {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* 底部送出區 */
+    .order-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .order-bar-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .order-bar input { max-width: 240px; }
+
+    .total {
+      margin-left: auto;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .total strong { color: var(--text); font-size: 18px; }
+
+    @media (max-width: 560px) {
+      .url-bar { flex-direction: column; }
+      .order-bar-inner { flex-wrap: wrap; }
+      .order-bar input { max-width: none; flex: 1 1 100%; }
+      .total { margin-left: 0; }
+      .order-bar button { margin-left: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>旗標訂餐系統</h1>
+
+    <!-- 1. 菜單網址 -->
+    <div class="url-bar">
+      <input type="url" id="menuUrl" placeholder="請貼上菜單網址，例如：https://example.com/menu">
+      <button id="analyzeBtn">分析菜單</button>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <!-- 2. loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <span>菜單分析中，請稍候…</span>
+    </div>
+
+    <!-- 3. 品項卡片 -->
+    <div class="menu-grid" id="menuGrid"></div>
+  </div>
+
+  <!-- 4. 底部：姓名 + 送出訂單 -->
+  <div class="order-bar">
+    <div class="order-bar-inner">
+      <input type="text" id="customerName" placeholder="請輸入姓名">
+      <span class="total">合計：<strong id="totalPrice">$0</strong></span>
+      <button id="submitBtn">送出訂單</button>
+    </div>
+  </div>
+
+  <script>
+    // 後端 API 位置（之後接上後端時修改這裡）
+    const API_ANALYZE = '/api/analyze-menu';
+    const API_ORDER = '/api/order';
+
+    // 後端尚未完成時使用的示範資料
+    const DEMO_MENU = [
+      { name: '珍珠奶茶', price: 55, options: ['正常冰', '少冰', '去冰', '熱'] },
+      { name: '四季春青茶', price: 35, options: ['全糖', '半糖', '微糖', '無糖'] },
+      { name: '雞腿便當', price: 110, options: ['白飯', '五穀飯', '飯少'] },
+      { name: '排骨飯', price: 95, options: ['白飯', '五穀飯', '飯少'] },
+      { name: '牛肉麵', price: 150, options: ['原味', '小辣', '中辣', '大辣'] },
+      { name: '燙青菜', price: 40, options: [] }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const menuUrl = $('menuUrl');
+    const analyzeBtn = $('analyzeBtn');
+    const loading = $('loading');
+    const menuGrid = $('menuGrid');
+    const message = $('message');
+    const customerName = $('customerName');
+    const submitBtn = $('submitBtn');
+    const totalPrice = $('totalPrice');
+
+    let menuItems = [];
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = 'message show ' + type;
+    }
+
+    function hideMessage() {
+      message.className = 'message';
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    // 分析菜單
+    async function analyzeMenu() {
+      const url = menuUrl.value.trim();
+      if (!url) {
+        showMessage('請先貼上菜單網址', 'error');
+        menuUrl.focus();
+        return;
+      }
+
+      hideMessage();
+      menuGrid.innerHTML = '';
+      loading.classList.add('show');
+      analyzeBtn.disabled = true;
+      analyzeBtn.textContent = '分析中…';
+
+      try {
+        let items;
+        let res = null;
+        try {
+          res = await fetch(API_ANALYZE, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+          });
+        } catch (err) {
+          // 連不到後端（例如直接開啟 html 檔）時，用示範資料呈現畫面
+          console.warn('無法連線分析 API，改用示範資料：', err);
+        }
+
+        if (res) {
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+          items = data.items || [];
+        } else {
+          await new Promise((r) => setTimeout(r, 1200));
+          items = DEMO_MENU;
+        }
+
+        menuItems = items;
+        renderMenu(items);
+      } catch (err) {
+        menuItems = [];
+        showMessage('分析失敗：' + err.message, 'error');
+      } finally {
+        loading.classList.remove('show');
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = '分析菜單';
+      }
+    }
+
+    // 以卡片顯示品項
+    function renderMenu(items) {
+      if (!items.length) {
+        showMessage('沒有分析到任何品項', 'error');
+        return;
+      }
+
+      menuGrid.innerHTML = items.map((item, i) => {
+        const options = item.options || [];
+        const optionHtml = options.length
+          ? options.map((o) => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')
+          : '<option value="">無</option>';
+
+        return `
+          <div class="card" data-index="${i}">
+            <div class="card-header">
+              <h3 class="item-name">${escapeHtml(item.name)}</h3>
+              <span class="item-price">$${Number(item.price) || 0}</span>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="opt-${i}">客製化選項</label>
+                <select id="opt-${i}" ${options.length ? '' : 'disabled'}>${optionHtml}</select>
+              </div>
+              <div class="field qty">
+                <label for="qty-${i}">數量</label>
+                <input type="number" id="qty-${i}" min="0" value="0">
+              </div>
+            </div>
+            <div class="card-footer field">
+              <label for="note-${i}">備註</label>
+              <input type="text" id="note-${i}" placeholder="例如：不要香菜、少冰">
+            </div>
+          </div>`;
+      }).join('');
+
+      updateTotal();
+    }
+
+    // 收集數量 > 0 的品項
+    function collectOrderItems() {
+      return menuItems.map((item, i) => ({
+        name: item.name,
+        price: Number(item.price) || 0,
+        option: $('opt-' + i).value,
+        quantity: parseInt($('qty-' + i).value, 10) || 0,
+        note: $('note-' + i).value.trim()
+      })).filter((it) => it.quantity > 0);
+    }
+
+    function updateTotal() {
+      const sum = collectOrderItems().reduce((s, it) => s + it.price * it.quantity, 0);
+      totalPrice.textContent = '$' + sum;
+    }
+
+    // 送出訂單
+    async function submitOrder() {
+      const name = customerName.value.trim();
+      const items = collectOrderItems();
+
+      if (!menuItems.length) {
+        showMessage('請先分析菜單', 'error');
+        return;
+      }
+      if (!items.length) {
+        showMessage('請至少選擇一個品項（數量大於 0）', 'error');
+        return;
+      }
+      if (!name) {
+        showMessage('請輸入姓名', 'error');
+        customerName.focus();
+        return;
+      }
+
+      const order = { name, items, menuUrl: menuUrl.value.trim() };
+      submitBtn.disabled = true;
+      submitBtn.textContent = '送出中…';
+
+      try {
+        try {
+          const res = await fetch(API_ORDER, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+        } catch (err) {
+          console.warn('無法連線訂單 API，訂單內容：', order, err);
+        }
+        const total = items.reduce((s, it) => s + it.price * it.quantity, 0);
+        showMessage(`${name}，訂單已送出！共 ${items.length} 項，合計 $${total}`, 'success');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出訂單';
+      }
+    }
+
+    analyzeBtn.addEventListener('click', analyzeMenu);
+    menuUrl.addEventListener('keydown', (e) => { if (e.key === 'Enter') analyzeMenu(); });
+    menuGrid.addEventListener('input', updateTotal);
+    submitBtn.addEventListener('click', submitOrder);
+  </script>
+</body>
+</html>
