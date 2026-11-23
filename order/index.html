@@ -315,6 +315,12 @@
           console.warn('無法連線分析 API，改用示範資料：', err);
         }
 
+        // 靜態網站（例如 GitHub Pages）沒有後端，API 會回 404 / 405，也改用示範資料
+        if (res && (res.status === 404 || res.status === 405)) {
+          console.warn('沒有後端 API（HTTP ' + res.status + '），改用示範資料');
+          res = null;
+        }
+
         if (res) {
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
@@ -326,6 +332,7 @@
 
         menuItems = items;
         renderMenu(items);
+        if (!res) showMessage('示範模式：目前沒有連接後端，以下為示範菜單', 'success');
       } catch (err) {
         menuItems = [];
         showMessage('分析失敗：' + err.message, 'error');
