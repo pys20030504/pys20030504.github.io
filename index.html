@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pys20030504 的個人網頁</title>
+  <meta name="description" content="pys20030504 的自我介紹與課程作品。">
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --text: #1f2328;
+      --muted: #5c6370;
+      --border: #e3e1da;
+      --accent: #2f6f5e;
+      --accent-soft: #e4f0ec;
+      --placeholder: #a15c00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #15171a;
+        --surface: #1d2024;
+        --text: #e8e6e1;
+        --muted: #a0a6ad;
+        --border: #2e3237;
+        --accent: #7cc4ad;
+        --accent-soft: #20332d;
+        --placeholder: #f0b45c;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.75;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+    header { padding: 72px 0 40px; }
+    .avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--accent-soft); color: var(--accent);
+      display: grid; place-items: center;
+      font-size: 28px; font-weight: 700; margin-bottom: 20px;
+    }
+    h1 { font-size: clamp(28px, 6vw, 40px); line-height: 1.25; margin: 0 0 8px; }
+    .tagline { color: var(--muted); font-size: 18px; margin: 0; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    nav a, .btn {
+      display: inline-block; padding: 6px 14px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); text-decoration: none; font-size: 15px;
+    }
+    nav a:hover, .btn:hover { border-color: var(--accent); color: var(--accent); }
+    section { padding: 32px 0; border-top: 1px solid var(--border); }
+    h2 { font-size: 22px; margin: 0 0 16px; }
+    h3 { font-size: 18px; margin: 0 0 6px; }
+    p { margin: 0 0 12px; }
+    .ph { color: var(--placeholder); }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; list-style: none; }
+    .tags li {
+      padding: 4px 12px; border-radius: 6px;
+      background: var(--accent-soft); color: var(--accent); font-size: 15px;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; margin-bottom: 16px;
+    }
+    .meta { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+    .card ul { margin: 8px 0 0; padding-left: 20px; }
+    footer { padding: 32px 0 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="avatar" aria-hidden="true">P</div>
+      <h1>嗨，我是 <span class="ph">【你的名字】</span></h1>
+      <p class="tagline"><span class="ph">【學校／科系，或一句話介紹自己】</span></p>
+      <nav aria-label="頁面導覽">
+        <a href="#about">關於我</a>
+        <a href="#works">作品與作業</a>
+        <a href="#contact">聯絡我</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="about">
+        <h2>關於我</h2>
+        <p><span class="ph">【在這裡寫兩三句自我介紹：你在學什麼、對什麼有興趣、正在做什麼。】</span></p>
+        <p><span class="ph">【可以再補一句你想做的事或目標。】</span></p>
+        <h3 style="margin-top:20px">興趣與技能</h3>
+        <ul class="tags">
+          <li>Git／GitHub</li>
+          <li>遠端協作</li>
+          <li class="ph">【技能 1】</li>
+          <li class="ph">【技能 2】</li>
+          <li class="ph">【興趣】</li>
+        </ul>
+      </section>
+
+      <section id="works">
+        <h2>作品與作業</h2>
+
+        <article class="card">
+          <h3>CH7 遠端協作：交辦清楚，就能放手</h3>
+          <div class="meta">課程實作</div>
+          <p>學習怎麼把任務交辦給遠端的協作者（或 AI 助手）：從「一句話交辦」到填寫完整的「交辦單」，比較兩種做法交出來的成果有什麼差別。</p>
+          <ul>
+            <li>第 1 回合：只用一句話交辦任務</li>
+            <li>第 2、3 回合：用交辦單把目標、資料與限制寫清楚</li>
+            <li>每回合用檢核程式確認交了什麼、原始資料有沒有被改動</li>
+            <li>實作資料是虛構的「2026 河岸城市自行車挑戰賽」打卡紀錄</li>
+          </ul>
+          <p class="ph" style="margin-top:12px">【可以補上你的心得：交辦單讓結果差在哪裡？】</p>
+        </article>
+
+        <article class="card">
+          <h3 class="ph">【下一個作品的名稱】</h3>
+          <div class="meta ph">【課程或類型】</div>
+          <p class="ph">【一兩句說明這個作品在做什麼、你負責哪一部分。】</p>
+        </article>
+      </section>
+
+      <section id="contact">
+        <h2>聯絡我</h2>
+        <p>歡迎到 GitHub 看看我的其他專案。</p>
+        <a class="btn" href="https://github.com/pys20030504">GitHub：pys20030504</a>
+      </section>
+    </main>
+
+    <footer>
+      © 2026 pys20030504 · 使用 GitHub Pages 架設
+    </footer>
+  </div>
+</body>
+</html>
